@@ -1,0 +1,66 @@
+<script>
+  var viewer = WALK.getViewer();
+
+  function handleHoverChanged(material, hoverActive) {
+    if (hoverActive) {
+      document.body.style.cursor = 'pointer';
+    } else {
+      document.body.style.cursor = '';
+    }
+  }
+
+  // Add materials and their corresponding JSON files and views here
+  var materials = {
+    'Final Version Rruga': { file: 'extra-assets/Albina.json', view: 'Albina view label', onCloseView: 'Albina' },
+    'Alumin_stubat': { file: 'extra-assets/Alumin.json', view: '03', onCloseView: '05' }
+  };
+
+  // Register hover change handlers for each material
+  for (var material in materials) {
+    viewer.onMaterialHoverChanged(material, handleHoverChanged);
+  }
+
+  // Function to load JSON content from a file
+  function loadJSONContent(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', WALK.getExtraAssetUrl(url), true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        callback(JSON.parse(xhr.responseText));
+      } else if (xhr.readyState === 4) {
+        console.error('Failed to load content:', xhr.status, xhr.statusText);
+      }
+    };
+    xhr.send();
+  }
+
+  // Function to change camera view
+  function changeCameraView(viewName) {
+    viewer.switchToView(viewName);
+  }
+
+  // Function to attach the onClose event listener to the popup
+  function attachOnCloseEvent(onCloseView) {
+    document.querySelectorAll('.ext-popup-close-button').forEach(button => {
+      button.addEventListener('click', function() {
+        changeCameraView(onCloseView);
+      });
+    });
+  }
+
+  // Detect clicks on materials and perform actions
+  for (var material in materials) {
+    (function(material) {
+      viewer.onMaterialClicked(material, function(materialClicked, position, distance) {
+        // Load and display JSON content
+        loadJSONContent(materials[material].file, function(data) {
+          viewer.openPopup(data.content, { centerHorizontally: true, centerVertically: false });
+          attachOnCloseEvent(materials[material].onCloseView); // Attach the onClose event after opening the popup
+        });
+
+        // Ensure the view changes to the material-specific view
+        setTimeout(() => changeCameraView(materials[material].view), 100);
+      });
+    })(material);
+  }
+</script>
