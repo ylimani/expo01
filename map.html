@@ -5,10 +5,16 @@
     body {
       text-align: center;
       background-color: #bcbcbc;
+      height: 50vh; /* Limit height to 50% of the viewport */
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     img {
       max-width: 100%;
       border-radius: 12px;
+      height: 50vh; /* Ensures image is also limited to 50% height */
+      object-fit: contain; /* Keeps the image proportions */
     }
   </style>
 </head>
